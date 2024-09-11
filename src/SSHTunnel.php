@@ -70,7 +70,7 @@ class SSHTunnel
             $sshConfig,
             array_flip(
                 [
-                    'user', 'sshHost', 'sshPort', 'localPort', 'remoteHost', 'remotePort', 'privateKey', 'compression',
+                    'user', 'sshHost', 'sshPort', 'localPort', 'remoteHost', 'remotePort', 'privateKey', 'compression', 'debug'
                 ],
             ),
         );
@@ -97,7 +97,12 @@ class SSHTunnel
         try {
             $proxy->call(function () use ($tunnelParams): void {
                 $ssh = new SSH();
-                $ssh->openTunnel($tunnelParams);
+                $sshProcess = $ssh->openTunnel($tunnelParams);
+
+                $this->logger->debug('SSH tunnel opened', [
+                    'Output' => $sshProcess->getOutput(),
+                    'ErrorOutput' => $sshProcess->getErrorOutput(),
+                ]);
             });
         } catch (SSHException $e) {
             throw new UserException($e->getMessage() . 'Retries count: ' . $proxy->getTryCount(), 0, $e);

@@ -6,11 +6,25 @@ namespace Keboola\DbExtractorSSHTunnel\Test;
 
 use Keboola\DbExtractorSSHTunnel\Exception\UserException;
 use Keboola\DbExtractorSSHTunnel\SSHTunnel;
+use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class SSHTunnelTest extends TestCase
 {
+    private readonly LoggerInterface $logger;
+
+    private readonly TestHandler $logsHandler;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->logsHandler = new TestHandler();
+        $this->logger = new Logger('test', [$this->logsHandler]);
+    }
+
     public function testConfig(): void
     {
         $dbConfig = [
@@ -25,8 +39,7 @@ class SSHTunnelTest extends TestCase
             'port' => '3306',
         ];
 
-        $logger = new Logger('test');
-        $tunnel = new SSHTunnel($logger);
+        $tunnel = new SSHTunnel($this->logger);
         $newDbConfig = $tunnel->createSshTunnel($dbConfig);
 
         $this->assertEquals(
@@ -38,6 +51,33 @@ class SSHTunnelTest extends TestCase
         );
     }
 
+    public function testDebug(): void
+    {
+        $dbConfig = [
+            'ssh' => [
+                'user' => 'root',
+                'sshHost' => 'sshproxy',
+                'sshPort' => '22',
+                'localPort' => '33307',
+                'keys' => ['private' => $this->getPrivateKey()],
+                'debug' => true,
+            ],
+            'host' => 'mysql',
+            'port' => '3307',
+        ];
+
+        $tunnel = new SSHTunnel($this->logger);
+        $tunnel->createSshTunnel($dbConfig);
+
+        $this->assertTrue($this->logsHandler->hasDebug('SSH tunnel opened'));
+        $debugLogs = array_filter($this->logsHandler->getRecords(), function ($record) {
+            return $record['level'] === Logger::DEBUG;
+        });
+        $firstDebugLog = reset($debugLogs);
+        $this->assertSame('', $firstDebugLog['context']['Output']);
+        $this->assertStringContainsString('debug3:', $firstDebugLog['context']['ErrorOutput']);
+    }
+
     public function testMissingMainParameter(): void
     {
         $dbConfig = [
@@ -45,8 +85,7 @@ class SSHTunnelTest extends TestCase
             'port' => 'testPort',
         ];
 
-        $logger = new Logger('test');
-        $tunnel = new SSHTunnel($logger);
+        $tunnel = new SSHTunnel($this->logger);
 
         self::expectException(UserException::class);
         self::expectExceptionMessage("Main parameter 'ssh' is missing");
@@ -64,9 +103,7 @@ class SSHTunnelTest extends TestCase
             'port' => 'testPort',
         ];
 
-        $logger = new Logger('test');
-
-        $tunnel = new SSHTunnel($logger);
+        $tunnel = new SSHTunnel($this->logger);
 
         self::expectException(UserException::class);
         self::expectExceptionMessage("Parameter 'sshHost' is missing");
@@ -90,8 +127,7 @@ class SSHTunnelTest extends TestCase
             'port' => '3306',
         ];
 
-        $logger = new Logger('test');
-        $tunnel = new SSHTunnel($logger);
+        $tunnel = new SSHTunnel($this->logger);
 
         $this->expectException(UserException::class);
         $this->expectExceptionMessage('Unable to create ssh tunnel. Output:  ErrorOutput: ssh: connect to host ' .

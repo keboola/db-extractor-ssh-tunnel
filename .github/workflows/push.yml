@@ -23,7 +23,7 @@ jobs:
         run: docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"
       -
         name: Build image
-        run: docker-compose build
+        run: docker compose build
       -
         name: Test
-        run: docker-compose run --rm app composer ci
+        run: docker compose run --rm app composer ci

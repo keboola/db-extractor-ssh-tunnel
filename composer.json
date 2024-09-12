@@ -6,7 +6,7 @@
     "require": {
         "php": ">=8.2",
         "keboola/retry": "^0.5",
-        "keboola/ssh-tunnel": "^2.0.3",
+        "keboola/ssh-tunnel": "^2.1.0",
         "psr/log": "^1.1"
     },
     "require-dev": {

@@ -99,10 +99,12 @@ class SSHTunnel
                 $ssh = new SSH();
                 $sshProcess = $ssh->openTunnel($tunnelParams);
 
-                $this->logger->debug('SSH tunnel opened', [
-                    'Output' => $sshProcess->getOutput(),
-                    'ErrorOutput' => $sshProcess->getErrorOutput(),
-                ]);
+                if (isset($tunnelParams['debug']) && $tunnelParams['debug'] === true) {
+                    $this->logger->info('SSH tunnel opened', [
+                        'Output' => $sshProcess->getOutput(),
+                        'ErrorOutput' => $sshProcess->getErrorOutput(),
+                    ]);
+                }
             });
         } catch (SSHException $e) {
             throw new UserException($e->getMessage() . 'Retries count: ' . $proxy->getTryCount(), 0, $e);

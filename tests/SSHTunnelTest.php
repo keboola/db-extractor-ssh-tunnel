@@ -69,11 +69,11 @@ class SSHTunnelTest extends TestCase
         $tunnel = new SSHTunnel($this->logger);
         $tunnel->createSshTunnel($dbConfig);
 
-        $this->assertTrue($this->logsHandler->hasDebug('SSH tunnel opened'));
+        $this->assertTrue($this->logsHandler->hasInfo('SSH tunnel opened'));
         $debugLogs = array_filter($this->logsHandler->getRecords(), function ($record) {
-            return $record['level'] === Logger::DEBUG;
+            return $record['level'] === Logger::INFO;
         });
-        $firstDebugLog = reset($debugLogs);
+        $firstDebugLog = end($debugLogs);
         $this->assertSame('', $firstDebugLog['context']['Output']);
         $this->assertStringContainsString('debug3:', $firstDebugLog['context']['ErrorOutput']);
     }

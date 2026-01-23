@@ -1,10 +1,10 @@
 FROM db-ex-ssh-tunnel-sshproxy AS sshproxy
-FROM php:8.2-cli-buster
+FROM php:8.2-cli-bookworm
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
-ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_PROCESS_TIMEOUT 3600
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_PROCESS_TIMEOUT=3600
 
 RUN apt-get update -q \
   && apt-get install git unzip ssh -y --no-install-recommends

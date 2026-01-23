@@ -70,7 +70,7 @@ class SSHTunnel
             $sshConfig,
             array_flip(
                 [
-                    'user', 'sshHost', 'sshPort', 'localPort', 'remoteHost', 'remotePort', 'privateKey', 'compression', 'debug'
+                    'user', 'sshHost', 'sshPort', 'localPort', 'remoteHost', 'remotePort', 'privateKey', 'compression', 'debug',
                 ],
             ),
         );
@@ -87,7 +87,7 @@ class SSHTunnel
             [SSHException::class, Throwable::class],
         );
 
-        $exponentialBackOffPolicy = new ExponentialBackOffPolicy();
+        $exponentialBackOffPolicy = new ExponentialBackOffPolicy(1000);
         $proxy = new RetryProxy(
             $simplyRetryPolicy,
             $exponentialBackOffPolicy,
